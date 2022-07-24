@@ -42,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController detailController = TextEditingController();
 
   TodoFilter filter = TodoFilter.ALL;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -58,11 +59,17 @@ class _MyHomePageState extends State<MyHomePage> {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value.compareTo("All") == 0) {
-                filter = TodoFilter.ALL;
+                setState(() {
+                  filter = TodoFilter.ALL;
+                });
               } else if (value.compareTo("Completed") == 0) {
-                filter = TodoFilter.COMPLETED;
+                setState(() {
+                  filter = TodoFilter.COMPLETED;
+                });
               } else {
-                filter = TodoFilter.INCOMPLETED;
+                setState(() {
+                  filter = TodoFilter.INCOMPLETED;
+                });
               }
             },
             itemBuilder: (BuildContext context) {
@@ -78,10 +85,21 @@ class _MyHomePageState extends State<MyHomePage> {
           ValueListenableBuilder(
               valueListenable: todoBox.listenable(),
               builder: (context, Box<TodoModel> todos, _) {
+                List<int> keys;
+
                 if (filter == TodoFilter.ALL) {
+                  keys = todos.keys.cast<int>().toList();
                 } else if (filter == TodoFilter.COMPLETED) {
-                } else {}
-                List<int> keys = todos.keys.cast<int>().toList();
+                  keys = todos.keys
+                      .cast<int>()
+                      .where((key) => todos.get(key)!.isCompleted)
+                      .toList();
+                } else {
+                  keys = todos.keys
+                      .cast<int>()
+                      .where((key) => !todos.get(key)!.isCompleted)
+                      .toList();
+                }
 
                 return ListView.separated(
                   itemBuilder: (_, index) {
